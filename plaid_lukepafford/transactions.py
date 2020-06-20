@@ -107,5 +107,6 @@ class ChaseTransactions:
         self._write()
 
     def _write(self) -> None:
+        self.cache.mkdir(parents=True, exist_ok=True)
         with open(self.cache, "w") as f:
             json.dump(self.transactions, f)

@@ -1,5 +1,6 @@
 from plaid_lukepafford import __version__
-from plaid_lukepafford.transactions import all_transactions_since
+
+# from plaid_lukepafford.transactions import all_transactions_since
 from unittest.mock import patch
 
 

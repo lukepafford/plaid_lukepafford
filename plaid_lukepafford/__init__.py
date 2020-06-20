@@ -1,5 +1,5 @@
 import os
-import sys
+import platform
 from pathlib import Path
 
 __version__ = "0.1.0"
@@ -15,7 +15,8 @@ except KeyError:
     msg += "CLIENT_ID, SECRET, PUBLIC_KEY, ENV, CHASE_TOKEN"
     raise EnvironmentError(msg)
 
-if sys.platform == "Windows":
+is_windows = any(platform.win32_ver())
+if is_windows:
     PLAID_CACHE = (
         Path(os.getenv("APPDATA")) / "lukepafford " / "plaid" / "transactions.json"
     )

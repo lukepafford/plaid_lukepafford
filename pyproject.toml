@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "plaid-lukepafford"
-version = "0.1.4"
+version = "0.1.5"
 description = ""
 authors = ["Luke Pafford <lukepafford@gmail.com>"]
 readme = "README.md"

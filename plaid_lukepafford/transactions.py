@@ -33,7 +33,6 @@ class ChaseTransactions:
         )
 
         self.cache = cache
-        self.limit_per_day = 1
         self._read()
 
     @staticmethod

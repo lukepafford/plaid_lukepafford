@@ -8,12 +8,9 @@ from pathlib import Path
 
 
 class ChaseTransactions:
-    def __init__(
-        self, cache: Path = PLAID_CACHE, limit_per_day: int = 1, **kwargs
-    ) -> None:
+    def __init__(self, cache: Path = PLAID_CACHE, **kwargs) -> None:
         """
         cache: File to read/write transaction data from
-        limit_per_day: How many times the Plaid API can be called in a day
         kwargs:
             CLIENT_ID
             SECRET

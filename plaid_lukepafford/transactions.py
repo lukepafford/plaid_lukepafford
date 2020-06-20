@@ -1,5 +1,6 @@
 import datetime
 import json
+import pandas as pd
 from plaid import Client
 from plaid_lukepafford import CLIENT_ID, SECRET, PUBLIC_KEY, ENV, CHASE_TOKEN
 from functools import partial
@@ -59,7 +60,7 @@ class ChaseTransactions:
                 self.transactions["transactions"]
             )
 
-    def _all_transactions_since(self, count=500) -> dict:
+    def _all_transactions_since(self, count: int = 500) -> dict:
         """
         Fetches all transactions since the latest start date in the
         existing cache
@@ -75,6 +76,11 @@ class ChaseTransactions:
                 break
         results["transactions"] = transactions
         return results
+
+    def to_dataframe(self) -> pd.DataFrame:
+        df = pd.DataFrame.from_dict(self.transactions["transactions"])
+        df.category = df.category.str.join(", ")
+        return df
 
     def merge_transactions(self) -> None:
         """

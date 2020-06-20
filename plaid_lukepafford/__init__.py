@@ -18,7 +18,7 @@ except KeyError:
 is_windows = any(platform.win32_ver())
 if is_windows:
     PLAID_CACHE = (
-        Path(os.getenv("APPDATA")) / "lukepafford " / "plaid" / "transactions.json"
+        Path(os.getenv("APPDATA")) / "lukepafford" / "plaid" / "transactions.json"
     )
 else:
     PLAID_CACHE = (

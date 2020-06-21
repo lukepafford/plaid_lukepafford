@@ -80,6 +80,7 @@ class ChaseTransactions:
     def to_dataframe(self) -> pd.DataFrame:
         df = pd.DataFrame.from_dict(self.transactions["transactions"])
         df.category = df.category.str.join(", ")
+        df.date = pd.to_datetime(df.date)
         return df
 
     def merge_transactions(self) -> None:

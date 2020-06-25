@@ -60,6 +60,17 @@ class ChaseTransactions:
                 self.transactions["transactions"]
             )
 
+    def to_dataframe(self) -> pd.DataFrame:
+        df = pd.DataFrame.from_dict(self.transactions["transactions"])
+        df.category = df.category.str.join(", ")
+        df.date = pd.to_datetime(df.date)
+        return df
+
+    def _write(self) -> None:
+        self.cache.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.cache, "w") as f:
+            json.dump(self.transactions, f)
+
     def _all_transactions_since(self, count: int = 500) -> dict:
         """
         Fetches all transactions since the latest start date in the
@@ -77,16 +88,9 @@ class ChaseTransactions:
         results["transactions"] = transactions
         return results
 
-    def to_dataframe(self) -> pd.DataFrame:
-        df = pd.DataFrame.from_dict(self.transactions["transactions"])
-        df.category = df.category.str.join(", ")
-        df.date = pd.to_datetime(df.date)
-        return df
-
-    def merge_transactions(self) -> None:
+    def _merge_latest_transactions(self) -> None:
         """
         Performs network IO to fetch latest transactions
-        and append them to current cache
         """
 
         # Discard possibly stale results of todays data if
@@ -105,9 +109,11 @@ class ChaseTransactions:
         self.start_date = ChaseTransactions.latest_date(
             self.transactions["transactions"]
         )
-        self._write()
 
-    def _write(self) -> None:
-        self.cache.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.cache, "w") as f:
-            json.dump(self.transactions, f)
+    def merge_transactions(self) -> None:
+        """
+        Performs network IO to fetch latest transactions
+        and append them to current cache
+        """
+        self._merge_latest_transactions()
+        self._write()

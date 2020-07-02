@@ -1,5 +1,6 @@
 from plaid_lukepafford import __version__
 from plaid_lukepafford.transactions import ChaseTransactions
+from unittest.mock import patch
 import pytest
 import json
 import pandas as pd
@@ -63,8 +64,34 @@ def test_cache_write(empty_cache):
     assert empty_cache.transactions["total_transactions"] == 1
 
 
-def test_transactions_since(fake_cache):
-    pass
+def multi_page_response():
+    """
+    Acts as if multiple network requests are being returned
+    when paged results are requested
+    """
+    yield {
+        "total_transactions": 2,
+        "transactions": [{"date": "2020-01-15", "category": "test"}],
+    }
+
+    yield {
+        "total_transactions": 2,
+        "transactions": [{"date": "2020-01-16", "category": "test"}],
+    }
+
+
+def test_transactions_since(empty_cache):
+    """
+    Tests that all records will be downloaded, and loop through each
+    page until the total transactions == length of transactions
+    """
+    paged_responses = multi_page_response()
+    with patch.object(empty_cache, "_get_chase_transactions") as transactions:
+        transactions.side_effect = lambda *args, **kwargs: next(paged_responses)
+        results = empty_cache._all_transactions_since()
+
+    assert transactions.call_count == 2
+    assert len(results["transactions"]) == 2
 
 
 def test_merge_latest_transactions(fake_cache):

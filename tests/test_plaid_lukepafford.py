@@ -55,10 +55,12 @@ def test_cache_write(empty_cache):
     empty_cache.transactions["transactions"].append(
         {"date": "2020-01-10", "category": "test"}
     )
-    empty_cache.total_transactions = 1
+    empty_cache.transactions["total_transactions"] = len(
+        empty_cache.transactions["transactions"]
+    )
     empty_cache._write()
     empty_cache._read()
-    assert len(empty_cache.transactions["transactions"]) == 1
+    assert empty_cache.transactions["total_transactions"] == 1
 
 
 def test_transactions_since(fake_cache):

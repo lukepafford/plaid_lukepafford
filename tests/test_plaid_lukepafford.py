@@ -3,6 +3,7 @@ from plaid_lukepafford.transactions import ChaseTransactions
 from unittest.mock import patch
 import pytest
 import json
+import itertools
 import pandas as pd
 
 
@@ -70,12 +71,17 @@ def multi_page_response():
     when paged results are requested
     """
     yield {
-        "total_transactions": 2,
+        "total_transactions": 3,
+        "transactions": [{"date": "2020-01-05", "category": "test"}],
+    }
+
+    yield {
+        "total_transactions": 3,
         "transactions": [{"date": "2020-01-15", "category": "test"}],
     }
 
     yield {
-        "total_transactions": 2,
+        "total_transactions": 3,
         "transactions": [{"date": "2020-01-16", "category": "test"}],
     }
 
@@ -90,9 +96,23 @@ def test_transactions_since(empty_cache):
         transactions.side_effect = lambda *args, **kwargs: next(paged_responses)
         results = empty_cache._all_transactions_since()
 
-    assert transactions.call_count == 2
-    assert len(results["transactions"]) == 2
+    assert transactions.call_count == 3
+    assert len(results["transactions"]) == 3
 
 
 def test_merge_latest_transactions(fake_cache):
-    pass
+    with patch.object(fake_cache, "_all_transactions_since") as transactions:
+        latest_transactions = list(
+            itertools.chain(*[t["transactions"] for t in multi_page_response()])
+        )
+        latest_object = {
+            "total_transactions": len(latest_transactions),
+            "transactions": latest_transactions,
+        }
+        transactions.return_value = latest_object
+
+        fake_cache._merge_latest_transactions()
+
+        # The cache should contain the two existing entries along with
+        # the three new ones
+        assert len(fake_cache.transactions["transactions"]) == 5
